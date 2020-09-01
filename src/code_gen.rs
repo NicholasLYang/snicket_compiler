@@ -81,7 +81,6 @@ pub struct Udf {
 #[derive(Serialize, PartialEq, Eq, Debug)]
 pub enum CppResult {
     Return { typ: CppType, id: String },
-    GroupBy { typ: CppType, id: String },
     None,
 }
 
