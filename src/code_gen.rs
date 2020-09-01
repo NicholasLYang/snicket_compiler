@@ -198,7 +198,7 @@ impl<'a> TreeFold<'a> for CodeGen<'a> {
     fn visit_prog(&mut self, prog: &'a Prog) {
         self.visit_patterns(&prog.patterns);
         self.visit_filters(&prog.filters);
-        self.visit_action(&prog.action);
+        self.visit_actions(&prog.actions);
     }
 
     fn visit_pattern(&mut self, pattern: &'a Pattern) {

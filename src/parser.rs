@@ -35,7 +35,7 @@ pub fn parse_prog<'a>(token_iter: &mut TokenIterator<'a>) -> Prog<'a> {
     Prog {
         patterns: parse_patterns(token_iter),
         filters: parse_filters(token_iter),
-        action: parse_action(token_iter),
+        actions: parse_actions(token_iter),
     }
 }
 
@@ -133,9 +133,13 @@ fn parse_filter<'a>(token_iter: &mut TokenIterator<'a>) -> Filter<'a> {
     }
 }
 
-fn parse_action<'a>(token_iter: &mut TokenIterator<'a>) -> Action<'a> {
+fn parse_actions<'a>(token_iter: &mut TokenIterator<'a>) -> Actions<'a> {
+    Actions(parse_action(token_iter))
+}
+
+fn parse_action<'a>(token_iter: &mut TokenIterator<'a>) -> Vec<Action<'a>> {
     if token_iter.peek().is_none() {
-        return Action::None;
+        return vec![Action::None];
     }
 
     match token_iter.next() {
@@ -146,9 +150,9 @@ fn parse_action<'a>(token_iter: &mut TokenIterator<'a>) -> Action<'a> {
                 Token::Period => {
                     let property = parse_identifier(token_iter);
                     consume_token(token_iter, &Token::Comma, "Must end with a comma");
-                    Action::GetProperty(id, property)
+                    vec![Action::GetProperty(id, property)]
                 }
-                Token::Comma => Action::CallUdf(id),
+                Token::Comma => vec![Action::CallUdf(id)],
                 _ => panic!("Unrecognized token: {:?}", operator_token),
             }
         }
@@ -160,7 +164,7 @@ fn parse_action<'a>(token_iter: &mut TokenIterator<'a>) -> Action<'a> {
             let func = parse_identifier(token_iter);
             consume_token(token_iter, &Token::Comma, "Must end with a comma");
 
-            Action::GroupBy(id, p, func)
+            vec![Action::GroupBy(id, p, func)]
         }
         Some(_) | None => panic!("Failed to parse action"),
     }
@@ -295,7 +299,7 @@ mod tests {
                     Identifier { id_name: "x" },
                     Value::Str("k")
                 )]),
-                action: Action::None,
+                actions: Actions(vec![Action::None]),
             }
         )
     }
@@ -309,7 +313,10 @@ mod tests {
         let action = parse_action(token_iter);
         assert_eq!(
             action,
-            Action::GetProperty(Identifier { id_name: "n" }, Identifier { id_name: "x" },)
+            vec![Action::GetProperty(
+                Identifier { id_name: "n" },
+                Identifier { id_name: "x" },
+            )]
         )
     }
     test_parser_success!(
@@ -333,10 +340,10 @@ mod tests {
                     relationship_type: Relationship::Edge(Identifier { id_name: "a" })
                 }]),
                 filters: Filters::new(),
-                action: Action::GetProperty(
+                actions: Actions(vec![Action::GetProperty(
                     Identifier { id_name: "n" },
                     Identifier { id_name: "x" },
-                )
+                )])
             }
         )
     }
@@ -356,7 +363,7 @@ mod tests {
                     relationship_type: Relationship::Edge(Identifier { id_name: "a" })
                 }]),
                 filters: Filters::new(),
-                action: Action::CallUdf(Identifier { id_name: "f" })
+                actions: Actions(vec![Action::CallUdf(Identifier { id_name: "f" })])
             }
         )
     }
@@ -376,10 +383,10 @@ mod tests {
                     relationship_type: Relationship::Edge(Identifier { id_name: "a" })
                 }]),
                 filters: Filters::new(),
-                action: Action::GetProperty(
+                actions: Actions(vec![Action::GetProperty(
                     Identifier { id_name: "graph" },
                     Identifier { id_name: "height" }
-                )
+                )])
             }
         )
     }
@@ -399,13 +406,13 @@ mod tests {
                     relationship_type: Relationship::Edge(Identifier { id_name: "a" })
                 }]),
                 filters: Filters::new(),
-                action: Action::GroupBy(
+                actions: Actions(vec![Action::GroupBy(
                     Identifier { id_name: "n" },
                     Identifier {
                         id_name: "response_size"
                     },
                     Identifier { id_name: "max" }
-                )
+                )])
             }
         )
     }

@@ -4,7 +4,7 @@ use std::fmt;
 pub struct Prog<'a> {
     pub patterns: Patterns<'a>,
     pub filters: Filters<'a>,
-    pub action: Action<'a>,
+    pub actions: Actions<'a>,
 }
 
 #[derive(Debug, Default, PartialEq)]
@@ -35,6 +35,15 @@ impl<'a> Filters<'a> {
 #[derive(Debug, PartialEq)]
 pub enum Filter<'a> {
     Property(Identifier<'a>, Identifier<'a>, Value<'a>), // xyz.abc == 5, xyz.b == 5, x.a == k
+}
+
+#[derive(Debug, PartialEq, Default)]
+pub struct Actions<'a>(pub Vec<Action<'a>>);
+
+impl<'a> Actions<'a> {
+    pub fn new() -> Self {
+        Default::default()
+    }
 }
 
 #[derive(Debug, PartialEq)]

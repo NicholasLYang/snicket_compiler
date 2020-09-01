@@ -9,7 +9,7 @@ pub trait TreeFold<'a> {
     fn visit_prog(&mut self, tree: &'a Prog) {
         self.visit_patterns(&tree.patterns);
         self.visit_filters(&tree.filters);
-        self.visit_action(&tree.action);
+        self.visit_actions(&tree.actions);
     }
 
     fn visit_patterns(&mut self, patterns: &'a Patterns) {
@@ -39,6 +39,12 @@ pub trait TreeFold<'a> {
                 self.visit_identifier(p);
                 self.visit_value(value);
             }
+        }
+    }
+
+    fn visit_actions(&mut self, actions: &'a Actions) {
+        for action in &actions.0 {
+            self.visit_action(action);
         }
     }
 
