@@ -302,94 +302,94 @@ std::string {cpp_var_id} = node_ptr->properties.at({parts});",
                     typ: func.return_type,
                     id: cpp_var_id,
                 }
-            }
-            Action::GroupBy(id, p, fid) => {
-                let attribute = &self.config.attributes_to_property_parts[p.id_name];
+            } //             Action::GroupBy(id, p, fid) => {
+              //                 let attribute = &self.config.attributes_to_property_parts[p.id_name];
 
-                // Generate C++ code for getting property
-                let property_var_id: String =
-                    String::from(id.id_name) + "_" + &attribute.parts.join("_");
+              //                 // Generate C++ code for getting property
+              //                 let property_var_id: String =
+              //                     String::from(id.id_name) + "_" + &attribute.parts.join("_");
 
-                let mut parts = String::from("{");
-                parts.push_str(
-                    &attribute
-                        .parts
-                        .iter()
-                        .map(|s| String::from("\"") + s + "\"")
-                        .collect::<Vec<String>>()
-                        .join(", "),
-                );
-                parts.push('}');
+              //                 let mut parts = String::from("{");
+              //                 parts.push_str(
+              //                     &attribute
+              //                         .parts
+              //                         .iter()
+              //                         .map(|s| String::from("\"") + s + "\"")
+              //                         .collect::<Vec<String>>()
+              //                         .join(", "),
+              //                 );
+              //                 parts.push_str("}");
 
-                let block = format!(
-                    "node_ptr = get_node_with_id(target, mapping->at(\"{node_id}\"));
-if (node_ptr == nullptr || node_ptr->properties.find({parts}) == node_ptr->properties.end()) {{
-    LOG_WARN(\"Node {node_id} not found\");
-    return;
-}}
-std::string {cpp_var_id} = node_ptr->properties.at({parts});",
-                    node_id = id.id_name,
-                    parts = parts,
-                    cpp_var_id = property_var_id.clone() + "_str",
-                );
-                self.blocks.push(block);
+              //                 let block = format!(
+              //                     "node_ptr = get_node_with_id(target, mapping->at(\"{node_id}\"));
+              // if (node_ptr == nullptr || node_ptr->properties.find({parts}) == node_ptr->properties.end()) {{
+              //     LOG_WARN(\"Node {node_id} not found\");
+              //     return;
+              // }}
+              // std::string {cpp_var_id} = node_ptr->properties.at({parts});",
+              //                     node_id = id.id_name,
+              //                     parts = parts,
+              //                     cpp_var_id = property_var_id.clone() + "_str",
+              //                 );
+              //                 self.blocks.push(block);
 
-                // C++ code for type conversion for the property
-                let conv = match &attribute.typ {
-                    CppType::Float => format!(
-                        "float {cpp_var_id} = std::atof({cpp_var_id}_str.c_str());",
-                        cpp_var_id = property_var_id
-                    ),
-                    CppType::Int => format!(
-                        "int {cpp_var_id} = std::atoi({cpp_var_id}_str.c_str());",
-                        cpp_var_id = property_var_id
-                    ),
-                    CppType::Int64T => format!(
-                        "int64_t {cpp_var_id} = std::atoll({cpp_var_id}_str.c_str());",
-                        cpp_var_id = property_var_id
-                    ),
-                    CppType::String => format!(
-                        "std::string {cpp_var_id} = {cpp_var_id}_str;",
-                        cpp_var_id = property_var_id
-                    ),
-                };
+              //                 // C++ code for type conversion for the property
+              //                 let conv = match &attribute.typ {
+              //                     CppType::Float => format!(
+              //                         "float {cpp_var_id} = std::atof({cpp_var_id}_str.c_str());",
+              //                         cpp_var_id = property_var_id
+              //                     ),
+              //                     CppType::Int => format!(
+              //                         "int {cpp_var_id} = std::atoi({cpp_var_id}_str.c_str());",
+              //                         cpp_var_id = property_var_id
+              //                     ),
+              //                     CppType::Int64T => format!(
+              //                         "int64_t {cpp_var_id} = std::atoll({cpp_var_id}_str.c_str());",
+              //                         cpp_var_id = property_var_id
+              //                     ),
+              //                     CppType::String => format!(
+              //                         "std::string {cpp_var_id} = {cpp_var_id}_str;",
+              //                         cpp_var_id = property_var_id
+              //                     ),
+              //                 };
 
-                self.blocks.push(conv);
+              //                 self.blocks.push(conv);
 
-                // Now generate code for calling user function specified with the value retrieved
-                // above.
-                self.node_attributes_to_fetch.insert(attribute.clone());
+              //                 // Now generate code for calling user function specified with the value retrieved
+              //                 // above.
+              //                 self.node_attributes_to_fetch.insert(attribute.clone());
 
-                if !self.config.udf_table.contains_key(fid.id_name) {
-                    panic!("can't find udf function: {}", fid.id_name);
-                }
+              //                 if !self.config.udf_table.contains_key(fid.id_name) {
+              //                     panic!("can't find udf function: {}", fid.id_name);
+              //                 }
 
-                let func = &self.config.udf_table[fid.id_name];
-                let cpp_var_id = func.id.clone() + "_result";
+              //                 let func = &self.config.udf_table[fid.id_name];
+              //                 let cpp_var_id = func.id.clone() + "_result";
 
-                let block = if func.return_type != CppType::String {
-                    format!(
-                        "auto udf_result = root_->{func_name}_udf_({args});
-                        std::tie(key, value) = std::make_pair(udf_result.first, std::to_string(udf_result.second));",
-                        func_name = func.id,
-                        args = property_var_id
-                    )
-                } else {
-                    format!(
-                        "std::tie(key, value) = root_->{func_name}_udf_({args});",
-                        func_name = func.id,
-                        args = property_var_id
-                    )
-                };
+              //                 let block = if func.return_type != CppType::String {
+              //                     format!(
+              //                         "std::string {cpp_var_id} = std::to_string(root_->{func_name}_udf_({args}));",
+              //                         cpp_var_id = cpp_var_id,
+              //                         func_name = func.id,
+              //                         args = property_var_id
+              //                     )
+              //                 } else {
+              //                     format!(
+              //                         "std::string {cpp_var_id} = root_->{func_name}_udf_({args});",
+              //                         cpp_var_id = cpp_var_id,
+              //                         func_name = func.id,
+              //                         args = property_var_id
+              //                     )
+              //                 };
 
-                self.blocks.push(block);
-                self.udfs.push(func.clone());
+              //                 self.blocks.push(block);
+              //                 self.udfs.push(func.clone());
 
-                self.result = CppResult::GroupBy {
-                    typ: attribute.typ,
-                    id: cpp_var_id,
-                };
-            }
+              //                 self.result = CppResult::GroupBy {
+              //                     typ: attribute.typ,
+              //                     id: cpp_var_id,
+              //                 };
+              //             }
         }
     }
 }
@@ -645,44 +645,44 @@ std::string n_x = node_ptr->properties.at({\"x\"});"
         );
     }
 
-    #[test]
-    fn test_group_by() {
-        let tokens = lexer::get_tokens(r"MATCH n-->m: a, GROUP a.response_size BY max,");
-        let mut token_iter: Peekable<std::slice::Iter<Token>> = tokens.iter().peekable();
-        let parse_tree = parser::parse_prog(&mut token_iter);
-        let mut code_gen = CodeGen::new();
+    // #[test]
+    // fn test_group_by() {
+    //     let tokens = lexer::get_tokens(r"MATCH n-->m: a, GROUP a.response_size BY max,");
+    //     let mut token_iter: Peekable<std::slice::Iter<Token>> = tokens.iter().peekable();
+    //     let parse_tree = parser::parse_prog(&mut token_iter);
+    //     let mut code_gen = CodeGen::new();
 
-        code_gen.config.udf_table.insert(
-            String::from("max"),
-            Udf {
-                udf_type: UdfType::Aggregation,
-                id: String::from("max"),
-                func_impl: String::from("function_impl"),
-                return_type: CppType::Int,
-            },
-        );
-        code_gen.visit_prog(&parse_tree);
+    //     code_gen.config.udf_table.insert(
+    //         String::from("max"),
+    //         Udf {
+    //             udf_type: UdfType::Aggregation,
+    //             id: String::from("max"),
+    //             func_impl: String::from("function_impl"),
+    //             return_type: CppType::Int,
+    //         },
+    //     );
+    //     code_gen.visit_prog(&parse_tree);
 
-        assert_eq!(code_gen.vertices, ["n", "m"].iter().cloned().collect());
-        assert_eq!(code_gen.edges, vec![("n", "m")]);
-        assert_eq!(
-            code_gen.node_attributes_to_fetch,
-            vec![AttributeDef {
-                typ: CppType::Int64T,
-                parts: vec!["response", "total_size"]
-            }]
-            .iter()
-            .cloned()
-            .collect()
-        );
-        assert_eq!(
-            code_gen.result,
-            CppResult::GroupBy {
-                typ: CppType::Int64T,
-                id: String::from("max_result"),
-            }
-        )
-    }
+    //     assert_eq!(code_gen.vertices, ["n", "m"].iter().cloned().collect());
+    //     assert_eq!(code_gen.edges, vec![("n", "m")]);
+    //     assert_eq!(
+    //         code_gen.node_attributes_to_fetch,
+    //         vec![AttributeDef {
+    //             typ: CppType::Int64T,
+    //             parts: vec!["response", "total_size"]
+    //         }]
+    //         .iter()
+    //         .cloned()
+    //         .collect()
+    //     );
+    //     assert_eq!(
+    //         code_gen.result,
+    //         CppResult::GroupBy {
+    //             typ: CppType::Int64T,
+    //             id: String::from("max_result"),
+    //         }
+    //     )
+    // }
 
     #[test]
     fn test_init_udf_table() {

@@ -164,7 +164,7 @@ fn parse_action<'a>(token_iter: &mut TokenIterator<'a>) -> Vec<Action<'a>> {
             let func = parse_identifier(token_iter);
             consume_token(token_iter, &Token::Comma, "Must end with a comma");
 
-            vec![Action::GroupBy(id, p, func)]
+            vec![Action::GetProperty(id, p), Action::CallUdf(func)]
         }
         Some(_) | None => panic!("Failed to parse action"),
     }
@@ -406,13 +406,15 @@ mod tests {
                     relationship_type: Relationship::Edge(Identifier { id_name: "a" })
                 }]),
                 filters: Filters::new(),
-                actions: Actions(vec![Action::GroupBy(
-                    Identifier { id_name: "n" },
-                    Identifier {
-                        id_name: "response_size"
-                    },
-                    Identifier { id_name: "max" }
-                )])
+                actions: Actions(vec![
+                    Action::GetProperty(
+                        Identifier { id_name: "n" },
+                        Identifier {
+                            id_name: "response_size"
+                        },
+                    ),
+                    Action::CallUdf(Identifier { id_name: "max" }),
+                ])
             }
         )
     }

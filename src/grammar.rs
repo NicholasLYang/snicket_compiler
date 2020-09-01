@@ -51,7 +51,6 @@ pub enum Action<'a> {
     None,
     GetProperty(Identifier<'a>, Identifier<'a>), // xyz.a, xyz.b
     CallUdf(Identifier<'a>),                     // f, we assume that the udf takes graph as input.
-    GroupBy(Identifier<'a>, Identifier<'a>, Identifier<'a>), // Group n.x by f
 }
 
 impl<'a> fmt::Display for Action<'a> {
@@ -63,14 +62,6 @@ impl<'a> fmt::Display for Action<'a> {
                 result.push_str(&id.to_string());
                 result.push('.');
                 result.push_str(&p.to_string());
-                write!(f, "{}", result)
-            }
-            Action::GroupBy(id, p, func) => {
-                let mut result = String::new();
-                result.push_str(&id.to_string());
-                result.push('.');
-                result.push_str(&p.to_string());
-                result.push_str(&func.to_string());
                 write!(f, "{}", result)
             }
             Action::CallUdf(id) => write!(f, "{}", id.to_string()),
