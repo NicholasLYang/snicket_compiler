@@ -268,7 +268,6 @@ std::string {cpp_var_id} = node_ptr->properties.at({parts});",
                     id: cpp_var_id,
                 };
             }
-            Action::None => {}
             Action::CallUdf(id) => {
                 if !self.config.udf_table.contains_key(id.id_name) {
                     panic!("Can't find udf function: {}", id.id_name);

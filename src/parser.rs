@@ -139,7 +139,7 @@ fn parse_actions<'a>(token_iter: &mut TokenIterator<'a>) -> Actions<'a> {
 
 fn parse_action<'a>(token_iter: &mut TokenIterator<'a>) -> Vec<Action<'a>> {
     if token_iter.peek().is_none() {
-        return vec![Action::None];
+        return vec![];
     }
 
     match token_iter.next() {
@@ -299,7 +299,7 @@ mod tests {
                     Identifier { id_name: "x" },
                     Value::Str("k")
                 )]),
-                actions: Actions(vec![Action::None]),
+                actions: Actions::new(),
             }
         )
     }

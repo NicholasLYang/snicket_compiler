@@ -57,7 +57,6 @@ pub trait TreeFold<'a> {
             Action::CallUdf(ref id) => {
                 self.visit_identifier(id);
             }
-            Action::None => {}
         }
     }
 

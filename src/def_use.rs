@@ -54,7 +54,6 @@ impl<'a> TreeFold<'a> for DefUse<'a> {
                 }
             }
             Action::CallUdf(_id) => {}
-            Action::None => {}
         }
     }
 }
