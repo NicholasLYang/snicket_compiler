@@ -11,6 +11,5 @@ pub mod def_use;
 pub mod grammar;
 pub mod lexer;
 pub mod parser;
-pub mod pretty_printer;
 mod token;
 pub mod tree_fold;
