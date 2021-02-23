@@ -193,7 +193,7 @@ impl<'i> CypherVisitor<'i> for FilterVisitor {
                                         .unwrap();
                                     let node = prop_exp.oC_Atom().unwrap().get_text();
                                     let property =
-                                        prop_exp.oC_PropertyLookup(0).unwrap().get_text();
+                                        prop_exp.oC_PropertyLookup(0).unwrap().oC_PropertyKeyName().unwrap().get_text();
                                     for partial in comparison.oC_PartialComparisonExpression_all() {
                                         let value = partial.oC_AddOrSubtractExpression().unwrap();
                                         prop_filter.insert_values(
@@ -267,8 +267,7 @@ impl<'i> CypherVisitor<'i> for ReturnVisitor {
         }
         let mut property_str = String::new();
         for property in ctx.oC_PropertyLookup_all() {
-            // this includes the dots
-            property_str.push_str(&property.get_text())
+            property_str.push_str(&property.oC_PropertyKeyName().unwrap().get_text())
         }
         println!("Property String {:?}", property_str);
         self.return_items.push(ReturnItem {
@@ -434,7 +433,7 @@ mod tests {
         assert!(!visitor.struct_filters.is_empty());
         assert!(!visitor.prop_filters.is_empty());
         assert!(visitor.prop_filters[0].node == "trace".to_string());
-        assert!(visitor.prop_filters[0].property == ".latency".to_string());
+        assert!(visitor.prop_filters[0].property == "latency".to_string());
         assert!(visitor.prop_filters[0].value == "500".to_string());
     }
 
@@ -447,11 +446,11 @@ mod tests {
         assert!(!visitor.struct_filters.is_empty());
         assert!(visitor.prop_filters.len() == 2);
         assert!(visitor.prop_filters[0].node == "trace".to_string());
-        assert!(visitor.prop_filters[0].property == ".latency".to_string());
+        assert!(visitor.prop_filters[0].property == "latency".to_string());
         assert!(visitor.prop_filters[0].value == "500".to_string());
 
         assert!(visitor.prop_filters[1].node == "trace".to_string());
-        assert!(visitor.prop_filters[1].property == ".client".to_string());
+        assert!(visitor.prop_filters[1].property == "client".to_string());
         assert!(visitor.prop_filters[1].value == "xyz".to_string());
     }
 
@@ -475,7 +474,7 @@ mod tests {
         let _res = result.accept(&mut visitor);
         assert!(visitor.aggregate.as_ref().unwrap().udf_id == "histogram(a.request_size)");
         assert!(visitor.aggregate.as_ref().unwrap().entity == "a");
-        assert!(visitor.aggregate.as_ref().unwrap().property == ".return_code");
+        assert!(visitor.aggregate.as_ref().unwrap().property == "return_code");
     }
 
     #[test]
@@ -496,6 +495,6 @@ mod tests {
         results = get_map_functions(results);
         assert!(results.maps.len() == 2);
         assert!(results.maps.contains(&"service_name".to_string()));
-        assert!(results.maps.contains(&".return_code".to_string()));
+        assert!(results.maps.contains(&"return_code".to_string()));
     }
 }
