@@ -12,3 +12,4 @@ pub mod listener;
 pub mod parser;
 pub mod to_ir;
 pub mod visitor;
+pub mod codegen_simulator;

@@ -89,11 +89,11 @@ impl Aggregate {
 }
 
 pub struct VisitorResults {
-    struct_filters: Vec<StructuralFilter>,
-    prop_filters: Vec<AttributeFilter>,
-    return_expr: Option<IrReturn>,
-    aggregate: Option<Aggregate>,
-    maps: Vec<String>,
+    pub struct_filters: Vec<StructuralFilter>,
+    pub prop_filters: Vec<AttributeFilter>,
+    pub return_expr: Option<IrReturn>,
+    pub aggregate: Option<Aggregate>,
+    pub maps: Vec<String>,
 }
 
 /***********************************/
